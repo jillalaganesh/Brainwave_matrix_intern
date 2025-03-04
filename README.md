@@ -1,4 +1,4 @@
-# Brainwave_matrox_intern
+# Brainwave_matrix_intern
 class ATM:
     def __init__(self):
         # Initialize with a sample account data (you can replace it with a database or file)
