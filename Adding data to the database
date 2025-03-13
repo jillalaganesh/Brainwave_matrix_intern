@@ -1,0 +1,33 @@
+import sqlite3
+from datetime import datetime
+
+# Connect to the database
+connection = sqlite3.connect('inventory.db')
+cursor = connection.cursor()
+
+# Sample data for Users
+users = [
+    ('admin', 'admin123', 'admin'),
+    ('manager1', 'manager123', 'manager'),
+    ('staff1', 'staff123', 'staff')
+]
+
+# Insert users
+cursor.executemany('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', users)
+
+# Sample data for Products
+products = [
+    ('Laptop', 'Electronics', 800, 50),
+    ('Phone', 'Electronics', 500, 100),
+    ('Table', 'Furniture', 150, 20),
+    ('Chair', 'Furniture', 80, 40)
+]
+
+# Insert products
+cursor.executemany('INSERT INTO Products (product_name, category, price, quantity) VALUES (?, ?, ?, ?)', products)
+
+# Commit and close
+connection.commit()
+connection.close()
+
+print("Data inserted successfully!")
