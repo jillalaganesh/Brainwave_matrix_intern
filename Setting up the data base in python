@@ -1,0 +1,15 @@
+import sqlite3
+
+def create_database():
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+
+    # Execute schema
+    with open('schema.sql', 'r') as f:
+        cursor.executescript(f.read())
+
+    connection.commit()
+    connection.close()
+
+if __name__ == "__main__":
+    create_database()
