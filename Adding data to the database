@@ -31,3 +31,902 @@ connection.commit()
 connection.close()
 
 print("Data inserted successfully!")
+import sqlite3
+
+def create_database():
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+
+    # Execute schema
+    with open('schema.sql', 'r') as f:
+        cursor.executescript(f.read())
+
+    connection.commit()
+    connection.close()
+
+if __name__ == "__main__":
+    create_database()
+python database.py
+import sqlite3
+from datetime import datetime
+
+# Connect to the database
+connection = sqlite3.connect('inventory.db')
+cursor = connection.cursor()
+
+# Sample data for Users
+users = [
+    ('admin', 'admin123', 'admin'),
+    ('manager1', 'manager123', 'manager'),
+    ('staff1', 'staff123', 'staff')
+]
+
+# Insert users
+cursor.executemany('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', users)
+
+# Sample data for Products
+products = [
+    ('Laptop', 'Electronics', 800, 50),
+    ('Phone', 'Electronics', 500, 100),
+    ('Table', 'Furniture', 150, 20),
+    ('Chair', 'Furniture', 80, 40)
+]
+
+# Insert products
+cursor.executemany('INSERT INTO Products (product_name, category, price, quantity) VALUES (?, ?, ?, ?)', products)
+
+# Commit and close
+connection.commit()
+connection.close()
+
+print("Data inserted successfully!")
+python add_data.py
+Data inserted successfully!
+sqlite3 inventory.db
+SELECT * FROM Users;
+SELECT * FROM Products;
+pip install tk
+import sqlite3
+import tkinter as tk
+from tkinter import ttk
+
+def fetch_data():
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+
+    # Fetch product data from database
+    cursor.execute('SELECT product_id, product_name, category, price, quantity FROM Products')
+    rows = cursor.fetchall()
+    connection.close()
+
+    # Clear the table first
+    for row in tree.get_children():
+        tree.delete(row)
+
+    # Insert data into the table
+    for row in rows:
+        tree.insert("", "end", values=row)
+
+# Create main window
+root = tk.Tk()
+root.title("Inventory Management System")
+root.geometry("600x400")
+
+# Heading label
+tk.Label(root, text="Product Inventory", font=("Helvetica", 16)).pack(pady=10)
+
+# Treeview to display data
+columns = ("Product ID", "Product Name", "Category", "Price", "Quantity")
+tree = ttk.Treeview(root, columns=columns, show="headings")
+
+# Set column headings
+for col in columns:
+    tree.heading(col, text=col)
+    tree.column(col, width=100)
+
+tree.pack(pady=20)
+
+# Fetch Data Button
+tk.Button(root, text="Fetch Inventory", command=fetch_data).pack(pady=10)
+
+# Run the application
+root.mainloop()
+python inventory_gui.py
+import sqlite3
+import tkinter as tk
+from tkinter import ttk, messagebox
+
+def fetch_data():
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    cursor.execute('SELECT product_id, product_name, category, price, quantity FROM Products')
+    rows = cursor.fetchall()
+    connection.close()
+
+    # Clear existing data in the table
+    for row in tree.get_children():
+        tree.delete(row)
+
+    # Insert data into the table
+    for row in rows:
+        tree.insert("", "end", values=row)
+
+def add_product():
+    product_name = entry_name.get()
+    category = entry_category.get()
+    price = entry_price.get()
+    quantity = entry_quantity.get()
+
+    if not (product_name and category and price and quantity):
+        messagebox.showerror("Error", "All fields are required!")
+        return
+    
+    try:
+        price = float(price)
+        quantity = int(quantity)
+    except ValueError:
+        messagebox.showerror("Error", "Price must be a number and Quantity an integer!")
+        return
+    
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    cursor.execute('INSERT INTO Products (product_name, category, price, quantity) VALUES (?, ?, ?, ?)',
+                   (product_name, category, price, quantity))
+    connection.commit()
+    connection.close()
+    
+    # Clear input fields
+    entry_name.delete(0, tk.END)
+    entry_category.delete(0, tk.END)
+    entry_price.delete(0, tk.END)
+    entry_quantity.delete(0, tk.END)
+    
+    fetch_data()
+    messagebox.showinfo("Success", "Product added successfully!")
+
+# Main window
+root = tk.Tk()
+root.title("Inventory Management System")
+root.geometry("700x500")
+
+# Heading
+tk.Label(root, text="Product Inventory", font=("Helvetica", 16)).pack(pady=10)
+
+# Treeview to display data
+columns = ("Product ID", "Product Name", "Category", "Price", "Quantity")
+tree = ttk.Treeview(root, columns=columns, show="headings")
+
+for col in columns:
+    tree.heading(col, text=col)
+    tree.column(col, width=100)
+
+tree.pack(pady=10)
+
+# Form to add products
+tk.Label(root, text="Product Name:").pack()
+entry_name = tk.Entry(root)
+entry_name.pack()
+
+tk.Label(root, text="Category:").pack()
+entry_category = tk.Entry(root)
+entry_category.pack()
+
+tk.Label(root, text="Price:").pack()
+entry_price = tk.Entry(root)
+entry_price.pack()
+
+tk.Label(root, text="Quantity:").pack()
+entry_quantity = tk.Entry(root)
+entry_quantity.pack()
+
+# Buttons
+tk.Button(root, text="Add Product", command=add_product).pack(pady=10)
+tk.Button(root, text="Refresh Inventory", command=fetch_data).pack(pady=5)
+
+# Run the application
+fetch_data()  # Initial data load
+root.mainloop()
+import sqlite3
+import tkinter as tk
+from tkinter import ttk, messagebox
+
+def fetch_data():
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    cursor.execute('SELECT product_id, product_name, category, price, quantity FROM Products')
+    rows = cursor.fetchall()
+    connection.close()
+
+    # Clear existing data
+    for row in tree.get_children():
+        tree.delete(row)
+
+    # Insert new data
+    for row in rows:
+        tree.insert("", "end", values=row)
+
+def add_product():
+    product_name = entry_name.get()
+    category = entry_category.get()
+    price = entry_price.get()
+    quantity = entry_quantity.get()
+
+    if not (product_name and category and price and quantity):
+        messagebox.showerror("Error", "All fields are required!")
+        return
+
+    try:
+        price = float(price)
+        quantity = int(quantity)
+    except ValueError:
+        messagebox.showerror("Error", "Price must be a number and Quantity an integer!")
+        return
+    
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    cursor.execute('INSERT INTO Products (product_name, category, price, quantity) VALUES (?, ?, ?, ?)',
+                   (product_name, category, price, quantity))
+    connection.commit()
+    connection.close()
+    
+    clear_fields()
+    fetch_data()
+    messagebox.showinfo("Success", "Product added successfully!")
+
+def update_product():
+    selected_item = tree.selection()
+    if not selected_item:
+        messagebox.showerror("Error", "Please select a product to update.")
+        return
+
+    product_id = tree.item(selected_item, 'values')[0]
+
+    new_name = entry_name.get()
+    new_category = entry_category.get()
+    new_price = entry_price.get()
+    new_quantity = entry_quantity.get()
+
+    if not (new_name and new_category and new_price and new_quantity):
+        messagebox.showerror("Error", "All fields are required!")
+        return
+
+    try:
+        new_price = float(new_price)
+        new_quantity = int(new_quantity)
+    except ValueError:
+        messagebox.showerror("Error", "Price must be a number and Quantity an integer!")
+        return
+
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    cursor.execute('UPDATE Products SET product_name=?, category=?, price=?, quantity=? WHERE product_id=?',
+                   (new_name, new_category, new_price, new_quantity, product_id))
+    connection.commit()
+    connection.close()
+
+    clear_fields()
+    fetch_data()
+    messagebox.showinfo("Success", "Product updated successfully!")
+
+def delete_product():
+    selected_item = tree.selection()
+    if not selected_item:
+        messagebox.showerror("Error", "Please select a product to delete.")
+        return
+    
+    product_id = tree.item(selected_item, 'values')[0]
+
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    cursor.execute('DELETE FROM Products WHERE product_id=?', (product_id,))
+    connection.commit()
+    connection.close()
+
+    fetch_data()
+    messagebox.showinfo("Success", "Product deleted successfully!")
+
+def clear_fields():
+    entry_name.delete(0, tk.END)
+    entry_category.delete(0, tk.END)
+    entry_price.delete(0, tk.END)
+    entry_quantity.delete(0, tk.END)
+
+def select_product(event):
+    selected_item = tree.selection()
+    if not selected_item:
+        return
+    
+    product_data = tree.item(selected_item, 'values')
+    
+    entry_name.delete(0, tk.END)
+    entry_name.insert(0, product_data[1])
+
+    entry_category.delete(0, tk.END)
+    entry_category.insert(0, product_data[2])
+
+    entry_price.delete(0, tk.END)
+    entry_price.insert(0, product_data[3])
+
+    entry_quantity.delete(0, tk.END)
+    entry_quantity.insert(0, product_data[4])
+
+# Main window
+root = tk.Tk()
+root.title("Inventory Management System")
+root.geometry("700x550")
+
+# Heading
+tk.Label(root, text="Product Inventory", font=("Helvetica", 16)).pack(pady=10)
+
+# Treeview to display data
+columns = ("Product ID", "Product Name", "Category", "Price", "Quantity")
+tree = ttk.Treeview(root, columns=columns, show="headings")
+
+for col in columns:
+    tree.heading(col, text=col)
+    tree.column(col, width=100)
+
+tree.pack(pady=10)
+
+# Form for adding and updating products
+tk.Label(root, text="Product Name:").pack()
+entry_name = tk.Entry(root)
+entry_name.pack()
+
+tk.Label(root, text="Category:").pack()
+entry_category = tk.Entry(root)
+entry_category.pack()
+
+tk.Label(root, text="Price:").pack()
+entry_price = tk.Entry(root)
+entry_price.pack()
+
+tk.Label(root, text="Quantity:").pack()
+entry_quantity = tk.Entry(root)
+entry_quantity.pack()
+
+# Buttons
+tk.Button(root, text="Add Product", command=add_product).pack(pady=5)
+tk.Button(root, text="Update Product", command=update_product).pack(pady=5)
+tk.Button(root, text="Delete Product", command=delete_product).pack(pady=5)
+tk.Button(root, text="Refresh Inventory", command=fetch_data).pack(pady=5)
+
+# Select Product Event
+tree.bind("<ButtonRelease-1>", select_product)
+
+# Initial fetch of data
+fetch_data()
+
+# Run the application
+root.mainloop()
+def check_low_stock():
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+
+    # Fetch products with quantity less than 10
+    cursor.execute('SELECT product_name, quantity FROM Products WHERE quantity < 10')
+    low_stock_items = cursor.fetchall()
+    connection.close()
+
+    if low_stock_items:
+        alert_message = "Low Stock Alert!\n\n"
+        for item in low_stock_items:
+            alert_message += f"{item[0]} - Only {item[1]} left\n"
+        messagebox.showwarning("Low Stock Alert", alert_message)
+    else:
+        messagebox.showinfo("Stock Status", "All products have sufficient stock.")
+tk.Button(root, text="Check Low Stock", command=check_low_stock).pack(pady=5)
+CREATE TABLE Sales (
+    sale_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER,
+    quantity_sold INTEGER,
+    sale_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES Products(product_id)
+);
+def record_sale():
+    selected_item = tree.selection()
+    if not selected_item:
+        messagebox.showerror("Error", "Select a product to sell.")
+        return
+    
+    product_id = tree.item(selected_item, 'values')[0]
+    quantity_sold = simpledialog.askinteger("Sales Entry", "Enter quantity sold:")
+
+    if quantity_sold is None or quantity_sold <= 0:
+        return
+    
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+
+    # Update Product Quantity
+    cursor.execute('UPDATE Products SET quantity = quantity - ? WHERE product_id = ?', (quantity_sold, product_id))
+
+    # Record Sale in Sales Table
+    cursor.execute('INSERT INTO Sales (product_id, quantity_sold) VALUES (?, ?)', (product_id, quantity_sold))
+
+    connection.commit()
+    connection.close()
+
+    fetch_data()
+    messagebox.showinfo("Success", "Sale recorded successfully!")
+import csv
+
+def generate_sales_report():
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+
+    # Fetch sales data with product names
+    cursor.execute('''SELECT Sales.sale_id, Products.product_name, Sales.quantity_sold, Sales.sale_date
+                      FROM Sales 
+                      JOIN Products ON Sales.product_id = Products.product_id''')
+    sales_data = cursor.fetchall()
+    connection.close()
+
+    # Write to CSV
+    with open('sales_report.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Sale ID', 'Product Name', 'Quantity Sold', 'Sale Date'])
+        writer.writerows(sales_data)
+    
+    messagebox.showinfo("Success", "Sales report generated as 'sales_report.csv'")
+tk.Button(root, text="Generate Sales Report", command=generate_sales_report).pack(pady=5)
+CREATE TABLE Users (
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    role TEXT CHECK(role IN ('admin', 'manager', 'staff')) NOT NULL
+);
+users = [
+    ('admin', 'admin123', 'admin'),
+    ('manager1', 'manager123', 'manager'),
+    ('staff1', 'staff123', 'staff')
+]
+
+cursor.executemany('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', users)
+import sqlite3
+import tkinter as tk
+from tkinter import messagebox
+
+def login():
+    username = entry_username.get()
+    password = entry_password.get()
+
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    cursor.execute('SELECT * FROM Users WHERE username=? AND password=?', (username, password))
+    user = cursor.fetchone()
+    connection.close()
+
+    if user:
+        role = user[3]  # Access user role (admin, manager, staff)
+        root.destroy()  # Close login window
+        open_inventory_system(role)
+    else:
+        messagebox.showerror("Login Failed", "Invalid username or password")
+
+def open_inventory_system(user_role):
+    import inventory_gui  # Open main inventory GUI
+
+# Main Login Window
+root = tk.Tk()
+root.title("Login System")
+root.geometry("300x200")
+
+tk.Label(root, text="Username:").pack(pady=5)
+entry_username = tk.Entry(root)
+entry_username.pack()
+
+tk.Label(root, text="Password:").pack(pady=5)
+entry_password = tk.Entry(root, show="*")
+entry_password.pack()
+
+tk.Button(root, text="Login", command=login).pack(pady=10)
+
+root.mainloop()
+def open_gui(user_role):
+    global root
+    root = tk.Tk()
+    root.title("Inventory Management System")
+    root.geometry("700x550")
+
+    tk.Label(root, text="Product Inventory", font=("Helvetica", 16)).pack(pady=10)
+
+    # Admin or Manager can access all features
+    if user_role in ['admin', 'manager']:
+        tk.Button(root, text="Add Product", command=add_product).pack(pady=5)
+        tk.Button(root, text="Update Product", command=update_product).pack(pady=5)
+        tk.Button(root, text="Delete Product", command=delete_product).pack(pady=5)
+        tk.Button(root, text="Check Low Stock", command=check_low_stock).pack(pady=5)
+        tk.Button(root, text="Record Sale", command=record_sale).pack(pady=5)
+        tk.Button(root, text="Generate Sales Report", command=generate_sales_report).pack(pady=5)
+    elif user_role == 'staff':
+        tk.Button(root, text="Record Sale", command=record_sale).pack(pady=5)
+
+    tk.Button(root, text="Refresh Inventory", command=fetch_data).pack(pady=5)
+
+    tree.pack(pady=10)
+    fetch_data()
+    root.mainloop()
+python login.py
+pip install pyinstaller
+cd path/to/your/inventory-management-system
+pyinstaller --onefile --windowed --name InventorySystem login.py
+[Setup]
+AppName=Inventory Management System
+AppVersion=1.0
+DefaultDirName={commonpf}\InventorySystem
+DefaultGroupName=Inventory Management System
+OutputDir=output
+OutputBaseFilename=InventorySystemSetup
+Compression=lzma
+SolidCompression=yes
+PrivilegesRequired=admin
+
+[Files]
+Source: "dist\InventorySystem.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "inventory.db"; DestDir: "{app}"; Flags: ignoreversion
+Source: "schema.sql"; DestDir: "{app}"; Flags: ignoreversion
+
+[Icons]
+Name: "{group}\Inventory Management System"; Filename: "{app}\InventorySystem.exe"
+Name: "{commondesktop}\Inventory Management System"; Filename: "{app}\InventorySystem.exe"
+
+[Run]
+Filename: "{app}\InventorySystem.exe"; Description: "Launch Inventory Management System"; Flags: nowait postinstall skipifsilent
+pip install bcrypt
+import sqlite3
+import bcrypt
+
+def add_user(username, password, role):
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    
+    cursor.execute('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', 
+                   (username, hashed_password, role))
+    
+    connection.commit()
+    connection.close()
+
+# Example: Add a new user
+add_user('admin', 'admin123', 'admin')
+add_user('manager1', 'manager123', 'manager')
+add_user('staff1', 'staff123', 'staff')
+import sqlite3
+import bcrypt
+import tkinter as tk
+from tkinter import messagebox
+
+def login():
+    username = entry_username.get()
+    password = entry_password.get()
+
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    cursor.execute('SELECT password, role FROM Users WHERE username=?', (username,))
+    result = cursor.fetchone()
+    connection.close()
+
+    if result:
+        stored_password, role = result
+        if bcrypt.checkpw(password.encode('utf-8'), stored_password):
+            root.destroy()  # Close login window
+            open_inventory_system(role)
+        else:
+            messagebox.showerror("Login Failed", "Invalid password")
+    else:
+        messagebox.showerror("Login Failed", "User not found")
+
+def open_inventory_system(user_role):
+    import inventory_gui  # Opens the inventory system GUI
+
+# Main Login Window
+root = tk.Tk()
+root.title("Login System")
+root.geometry("300x200")
+
+tk.Label(root, text="Username:").pack(pady=5)
+entry_username = tk.Entry(root)
+entry_username.pack()
+
+tk.Label(root, text="Password:").pack(pady=5)
+entry_password = tk.Entry(root, show="*")
+entry_password.pack()
+
+tk.Button(root, text="Login", command=login).pack(pady=10)
+
+root.mainloop()
+import sqlite3
+import bcrypt
+import tkinter as tk
+from tkinter import messagebox, ttk
+
+def register_user():
+    username = entry_username.get()
+    password = entry_password.get()
+    role = role_combobox.get()
+
+    if not username or not password or not role:
+        messagebox.showerror("Error", "All fields are required.")
+        return
+    
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+
+    try:
+        cursor.execute('INSERT INTO Users (username, password, role) VALUES (?, ?, ?)', 
+                       (username, hashed_password, role))
+        connection.commit()
+        messagebox.showinfo("Success", "User registered successfully!")
+    except sqlite3.IntegrityError:
+        messagebox.showerror("Error", "Username already exists.")
+    finally:
+        connection.close()
+
+# GUI for User Registration
+register_window = tk.Tk()
+register_window.title("User Registration")
+register_window.geometry("300x300")
+
+tk.Label(register_window, text="Username:").pack(pady=5)
+entry_username = tk.Entry(register_window)
+entry_username.pack()
+
+tk.Label(register_window, text="Password:").pack(pady=5)
+entry_password = tk.Entry(register_window, show="*")
+entry_password.pack()
+
+tk.Label(register_window, text="Role:").pack(pady=5)
+role_combobox = ttk.Combobox(register_window, values=["admin", "manager", "staff"])
+role_combobox.pack()
+
+tk.Button(register_window, text="Register User", command=register_user).pack(pady=10)
+
+register_window.mainloop()
+python register.py
+import sqlite3
+import bcrypt
+import tkinter as tk
+from tkinter import messagebox
+
+def change_password():
+    username = entry_username.get()
+    old_password = entry_old_password.get()
+    new_password = entry_new_password.get()
+    
+    if not username or not old_password or not new_password:
+        messagebox.showerror("Error", "All fields are required.")
+        return
+    
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    
+    # Fetch the stored hashed password
+    cursor.execute('SELECT password FROM Users WHERE username=?', (username,))
+    result = cursor.fetchone()
+    
+    if result:
+        stored_password = result[0]
+        # Verify old password
+        if bcrypt.checkpw(old_password.encode('utf-8'), stored_password):
+            # Hash the new password
+            new_hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+            # Update the password in the database
+            cursor.execute('UPDATE Users SET password=? WHERE username=?', 
+                           (new_hashed_password, username))
+            connection.commit()
+            messagebox.showinfo("Success", "Password updated successfully!")
+        else:
+            messagebox.showerror("Error", "Old password is incorrect.")
+    else:
+        messagebox.showerror("Error", "User not found.")
+    
+    connection.close()
+
+# GUI for Change Password
+change_window = tk.Tk()
+change_window.title("Change Password")
+change_window.geometry("300x300")
+
+tk.Label(change_window, text="Username:").pack(pady=5)
+entry_username = tk.Entry(change_window)
+entry_username.pack()
+
+tk.Label(change_window, text="Old Password:").pack(pady=5)
+entry_old_password = tk.Entry(change_window, show="*")
+entry_old_password.pack()
+
+tk.Label(change_window, text="New Password:").pack(pady=5)
+entry_new_password = tk.Entry(change_window, show="*")
+entry_new_password.pack()
+
+tk.Button(change_window, text="Change Password", command=change_password).pack(pady=10)
+
+change_window.mainloop()
+python change_password.py
+ALTER TABLE Users 
+ADD COLUMN security_question TEXT;
+
+ALTER TABLE Users 
+ADD COLUMN security_answer TEXT;
+security_question = security_question_combobox.get()
+security_answer = entry_security_answer.get()
+
+if not security_question or not security_answer:
+    messagebox.showerror("Error", "Security question and answer are required.")
+    return
+
+hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+hashed_answer = bcrypt.hashpw(security_answer.encode('utf-8'), bcrypt.gensalt())
+
+cursor.execute('INSERT INTO Users (username, password, role, security_question, security_answer) VALUES (?, ?, ?, ?, ?)', 
+               (username, hashed_password, role, security_question, hashed_answer))
+tk.Label(register_window, text="Security Question:").pack(pady=5)
+security_question_combobox = ttk.Combobox(register_window, values=[
+    "What is your first pet's name?",
+    "What is your mother's maiden name?",
+    "What city were you born in?"
+])
+security_question_combobox.pack()
+
+tk.Label(register_window, text="Security Answer:").pack(pady=5)
+entry_security_answer = tk.Entry(register_window)
+entry_security_answer.pack()
+import sqlite3
+import bcrypt
+import tkinter as tk
+from tkinter import messagebox
+
+def verify_user():
+    username = entry_username.get()
+    if not username:
+        messagebox.showerror("Error", "Please enter your username.")
+        return
+    
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    
+    cursor.execute('SELECT security_question FROM Users WHERE username=?', (username,))
+    result = cursor.fetchone()
+    
+    connection.close()
+
+    if result:
+        security_question_label.config(text=f"Security Question: {result[0]}")
+        security_question_label.pack(pady=5)
+        entry_security_answer.pack()
+        btn_verify_answer.pack(pady=5)
+    else:
+        messagebox.showerror("Error", "User not found.")
+
+def verify_answer():
+    username = entry_username.get()
+    answer = entry_security_answer.get()
+
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    
+    cursor.execute('SELECT security_answer FROM Users WHERE username=?', (username,))
+    result = cursor.fetchone()
+    
+    connection.close()
+
+    if result and bcrypt.checkpw(answer.encode('utf-8'), result[0]):
+        entry_new_password.pack(pady=5)
+        btn_update_password.pack(pady=5)
+    else:
+        messagebox.showerror("Error", "Incorrect security answer.")
+
+def update_password():
+    username = entry_username.get()
+    new_password = entry_new_password.get()
+
+    hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    
+    cursor.execute('UPDATE Users SET password=? WHERE username=?', (hashed_password, username))
+    connection.commit()
+    connection.close()
+
+    messagebox.showinfo("Success", "Password updated successfully!")
+    forgot_window.destroy()
+
+# GUI for Forgot Password
+forgot_window = tk.Tk()
+forgot_window.title("Forgot Password")
+forgot_window.geometry("400x400")
+
+tk.Label(forgot_window, text="Username:").pack(pady=5)
+entry_username = tk.Entry(forgot_window)
+entry_username.pack()
+
+tk.Button(forgot_window, text="Verify User", command=verify_user).pack(pady=10)
+
+security_question_label = tk.Label(forgot_window, text="")
+entry_security_answer = tk.Entry(forgot_window)
+
+btn_verify_answer = tk.Button(forgot_window, text="Verify Answer", command=verify_answer)
+
+entry_new_password = tk.Entry(forgot_window, show="*", placeholder="Enter New Password")
+btn_update_password = tk.Button(forgot_window, text="Update Password", command=update_password)
+
+forgot_window.mainloop()
+import sqlite3
+import tkinter as tk
+from tkinter import messagebox, ttk
+
+def load_user_details():
+    username = entry_username.get()
+
+    if not username:
+        messagebox.showerror("Error", "Please enter the username.")
+        return
+    
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    cursor.execute('SELECT role, security_question FROM Users WHERE username=?', (username,))
+    result = cursor.fetchone()
+    connection.close()
+
+    if result:
+        entry_role.set(result[0])
+        security_question_combobox.set(result[1])
+    else:
+        messagebox.showerror("Error", "User not found.")
+
+def update_user_details():
+    username = entry_username.get()
+    new_role = entry_role.get()
+    new_security_question = security_question_combobox.get()
+    new_security_answer = entry_security_answer.get()
+
+    if not new_role or not new_security_question or not new_security_answer:
+        messagebox.showerror("Error", "All fields are required.")
+        return
+    
+    connection = sqlite3.connect('inventory.db')
+    cursor = connection.cursor()
+    hashed_answer = bcrypt.hashpw(new_security_answer.encode('utf-8'), bcrypt.gensalt())
+
+    cursor.execute('UPDATE Users SET role=?, security_question=?, security_answer=? WHERE username=?', 
+                   (new_role, new_security_question, hashed_answer, username))
+    
+    connection.commit()
+    connection.close()
+    messagebox.showinfo("Success", "User details updated successfully.")
+
+# GUI for User Profile Management
+profile_window = tk.Tk()
+profile_window.title("User Profile Management")
+profile_window.geometry("400x400")
+
+tk.Label(profile_window, text="Username:").pack(pady=5)
+entry_username = tk.Entry(profile_window)
+entry_username.pack()
+
+tk.Button(profile_window, text="Load User Details", command=load_user_details).pack(pady=10)
+
+tk.Label(profile_window, text="Role:").pack(pady=5)
+entry_role = ttk.Combobox(profile_window, values=["admin", "manager", "staff"])
+entry_role.pack()
+
+tk.Label(profile_window, text="Security Question:").pack(pady=5)
+security_question_combobox = ttk.Combobox(profile_window, values=[
+    "What is your first pet's name?",
+    "What is your mother's maiden name?",
+    "What city were you born in?"
+])
+security_question_combobox.pack()
+
+tk.Label(profile_window, text="Security Answer:").pack(pady=5)
+entry_security_answer = tk.Entry(profile_window)
+entry_security_answer.pack()
+
+tk.Button(profile_window, text="Update User Details", command=update_user_details).pack(pady=10)
+
+profile_window.mainloop()
